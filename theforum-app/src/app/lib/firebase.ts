@@ -1,6 +1,6 @@
 // Import Firebase modules
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration (replace with your .env variables)
@@ -19,4 +19,5 @@ const app = initializeApp(firebaseConfig);
 
 // Export Firebase services for use in other parts of the app
 export const auth = getAuth(app);       // Authentication (Google, Email/Password, etc.)
+export const provider = new GoogleAuthProvider();
 export const db = getFirestore(app);    // Firestore Database (stores user posts, newsletter data, etc.)
