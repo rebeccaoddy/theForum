@@ -1,7 +1,8 @@
-// Import Firebase modules
+// src/lib/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Firebase configuration (replace with your .env variables)
 const firebaseConfig = {
@@ -17,7 +18,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Export Firebase services for use in other parts of the app
-export const auth = getAuth(app);       // Authentication (Google, Email/Password, etc.)
-export const provider = new GoogleAuthProvider();
-export const db = getFirestore(app);    // Firestore Database (stores user posts, newsletter data, etc.)
+// Initialize services
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const googleProvider = new GoogleAuthProvider();
+
+export { auth, db, storage, googleProvider };
