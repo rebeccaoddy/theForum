@@ -1,13 +1,12 @@
 // src/app/page.tsx
-"use client"; // Add this line
-// src/app/page.tsx
-import SignInButton from "@/app/components/SignInButton";
-import PromptForm from "@/app/components/PromptForm";
-import { useAuth } from "@/app/components/AuthContext";
+"use client"; 
+import SignInButton from "@/app/components/SignInButton"; //import SignInButton component
+import PromptForm from "@/app/components/PromptForm"; //import PromptForm component
+import { useAuth } from "@/app/components/AuthContext"; //import custom hook to access auth context
 
 
-export default function Home() {
-  const { user } = useAuth();
+export default function Home() { //create Home component
+  const { user } = useAuth(); //use custom hook to access auth context
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
