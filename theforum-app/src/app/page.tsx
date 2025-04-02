@@ -7,6 +7,9 @@ import { useAuth } from "@/app/components/AuthContext"; //import custom hook to 
 
 export default function Home() { //create Home component
   const { user } = useAuth(); //use custom hook to access auth context
+  // Normalize the month format for the URL
+  const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" }).replace(" ", "-"); // e.g., "April-2025"
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -15,6 +18,15 @@ export default function Home() { //create Home component
         <>
           <p className="mb-4">Welcome, {user.displayName}!</p>
           <PromptForm />
+          <p>
+            View the newsletter for this month:{" "}
+            <a
+              href={`/newsletter/${currentMonth}`}
+              className="text-blue-500 underline"
+            >
+              Click here
+            </a>
+          </p>
           <SignInButton />
         </>
       ) : (

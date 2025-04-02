@@ -1,10 +1,11 @@
 // src/app/components/PromptForm.tsx
-"use client"; // Add this line
+"use client"; 
 
 import { useState } from "react"; //import useState hook
-import { db } from "../lib/firebase"; //import db from firebase
+import { db, storage } from "../lib/firebase"; //import db from firebase
 import { collection, addDoc } from "firebase/firestore";//import collection and addDoc from firebase/firestore
 import { useAuth } from "./AuthContext"; //import custom hook to access auth context
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const prompts = [
   "What’s your best moment this month?",
@@ -17,6 +18,13 @@ export default function PromptForm() {
   const { user } = useAuth(); //use custom hook to access auth context
   const [responses, setResponses] = useState<string[]>(Array(prompts.length).fill("")); //init responses array with empty strings
   const [loading, setLoading] = useState(false);//init loading state to false
+  const [photos, setPhotos] = useState<File[]>([]);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setPhotos([...photos, ...Array.from(e.target.files)]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {//create async function to handle form submission
     e.preventDefault(); 
@@ -24,17 +32,31 @@ export default function PromptForm() {
 
     setLoading(true); 
     try {
+
+      const photoURLs = await Promise.all(
+        photos.map(async (photo, index) => {
+          const photoRef = ref(storage, `submissions/${user.uid}/${Date.now()}_${index}_${photo.name}`);
+          await uploadBytes(photoRef, photo);
+          return await getDownloadURL(photoRef);
+        })
+      );
+
+      //normalze date format
+      const month = new Date().toLocaleString("default", { month: "long", year: "numeric" }).replace(" ", "-"); // e.g., "April-2025"
+
       await addDoc(collection(db, "submissions"), { //add submission to "submissions" collection
         userId: user.uid, // Add user ID to submission
-        month: new Date().toLocaleString("default", { month: "long", year: "numeric" }), //record date of sub
+        month: month,
         prompts: prompts.reduce((acc, prompt, index) => {
           acc[prompt] = responses[index]; //add prompt and response to submission
           return acc; //return updated object
         }, {} as Record<string, string>), //init empty object
+        photos: photoURLs,
         createdAt: new Date(), 
       });
       alert("Submission saved!");
       setResponses(Array(prompts.length).fill("")); //reset prompts 
+      setPhotos([]);
     } catch (error) {
       console.error("Error saving submission:", error);
       alert("Error saving submission.");
@@ -64,6 +86,16 @@ export default function PromptForm() {
           />
         </div>
       ))}
+      <div className="space-y-2">
+        <label className="block font-medium">Upload Photos</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handlePhotoChange}
+          className="w-full p-2 border rounded"
+        />
+      </div> 
       <button
         type="submit"
         disabled={loading}
